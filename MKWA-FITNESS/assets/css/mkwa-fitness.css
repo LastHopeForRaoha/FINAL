@@ -1,0 +1,266 @@
+/* Global Styles */
+.mkwa-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Dashboard Styles */
+.mkwa-dashboard {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.mkwa-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.mkwa-level-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.mkwa-level {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #2271b1;
+    padding: 5px 15px;
+    background: #f0f7fc;
+    border-radius: 20px;
+}
+
+.mkwa-progress-bar {
+    width: 200px;
+    height: 10px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.mkwa-progress {
+    height: 100%;
+    background: #2271b1;
+    transition: width 0.3s ease;
+}
+
+.mkwa-points {
+    font-weight: 500;
+    color: #3c434a;
+}
+
+/* Stats Grid */
+.mkwa-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.mkwa-stat-box {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.mkwa-stat-box:hover {
+    transform: translateY(-2px);
+}
+
+.mkwa-stat-box h3 {
+    margin: 0 0 10px 0;
+    color: #3c434a;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mkwa-stat-value {
+    font-size: 1.8em;
+    font-weight: 600;
+    color: #2271b1;
+}
+
+/* Activities Table */
+.mkwa-activities-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.mkwa-activities-table th,
+.mkwa-activities-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mkwa-activities-table th {
+    background: #f8f9fa;
+    font-weight: 500;
+    color: #3c434a;
+}
+
+.mkwa-activities-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* Profile Styles */
+.mkwa-profile {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.mkwa-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.mkwa-avatar img {
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mkwa-profile-info h2 {
+    margin: 0 0 10px 0;
+    color: #2271b1;
+}
+
+.mkwa-level-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    background: #f0f7fc;
+    color: #2271b1;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.mkwa-profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.mkwa-stat-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.mkwa-stat-label {
+    display: block;
+    font-size: 0.9em;
+    color: #3c434a;
+    margin-bottom: 5px;
+}
+
+/* Activity Chart */
+.mkwa-activity-chart {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    height: 300px;
+}
+
+/* Aboriginal Cultural Elements */
+.mkwa-cultural-achievement {
+    border-left: 4px solid #d35400;
+}
+
+.mkwa-seasonal-achievement {
+    border-left: 4px solid #27ae60;
+}
+
+.mkwa-community-achievement {
+    border-left: 4px solid #8e44ad;
+}
+
+/* Badge Styles */
+.mkwa-badges-container {
+    margin: 2rem 0;
+}
+
+.mkwa-badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 1rem;
+}
+
+.mkwa-badge-item {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.mkwa-badge-item:hover {
+    transform: translateY(-2px);
+}
+
+.mkwa-badge-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+}
+
+.mkwa-badge-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Cultural Badge Styles */
+.mkwa-badge-item.cultural {
+    border-left: 4px solid #d35400;
+}
+
+.mkwa-badge-item.seasonal {
+    border-left: 4px solid #27ae60;
+}
+
+.mkwa-badge-item.community {
+    border-left: 4px solid #8e44ad;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .mkwa-dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .mkwa-level-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mkwa-progress-bar {
+        width: 100%;
+    }
+
+    .mkwa-activities-table {
+        display: block;
+        overflow-x: auto;
+    }
+}

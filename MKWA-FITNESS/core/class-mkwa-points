@@ -1,0 +1,268 @@
+<?php
+/**
+ * Points management for Mkwa Fitness Plugin
+ * 
+ * @package MkwaFitness
+ * @since 1.0.0
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class MKWA_Points {
+    /**
+     * Core instance
+     */
+    private $core;
+    
+    /**
+     * Cache duration in seconds
+     */
+    private $cache_duration;
+
+    /**
+     * Constructor
+     */
+    public function __construct() {
+        $this->core = new MKWA_Core();
+        $this->cache_duration = get_option('mkwa_cache_duration', 3600);
+        $this->init_hooks();
+    }
+
+    /**
+     * Initialize WordPress hooks
+     */
+    private function init_hooks() {
+        add_action('mkwa_activity_logged', array($this, 'award_points'), 10, 2);
+        add_action('mkwa_daily_streak_check', array($this, 'check_streaks'));
+        add_action('mkwa_level_up', array($this, 'handle_level_up'), 10, 2);
+    }
+
+    /**
+     * Award points for an activity
+     */
+    public function award_points($member_id, $activity_data) {
+        global $wpdb;
+        
+        $points = $this->calculate_points($activity_data);
+        $streak_bonus = $this->calculate_streak_bonus($member_id);
+        $total_points = $points + ($points * $streak_bonus);
+
+        // Update member's total points
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->prefix}mkwa_members 
+            SET total_points = total_points + %d 
+            WHERE member_id = %d",
+            $total_points,
+            $member_id
+        ));
+
+        // Update the points earned in the activity record
+        $wpdb->update(
+            $wpdb->prefix . 'mkwa_activities',
+            array('points_earned' => $total_points),
+            array(
+                'member_id' => $member_id,
+                'activity_id' => $activity_data['activity_id']
+            ),
+            array('%d'),
+            array('%d', '%d')
+        );
+
+        // Clear cache
+        $this->core->set_cache('member_points_' . $member_id, null);
+
+        // Check for level up
+        $this->check_level_up($member_id);
+
+        return $total_points;
+    }
+
+    /**
+     * Calculate base points for an activity
+     */
+    private function calculate_points($activity_data) {
+        $base_points = array(
+            'checkin' => get_option('mkwa_points_checkin', 3),
+            'class' => get_option('mkwa_points_class', 15),
+            'cold_plunge' => get_option('mkwa_points_cold_plunge', 20),
+            'personal_record' => get_option('mkwa_points_pr', 25),
+            'competition' => get_option('mkwa_points_competition', 50)
+        );
+
+        return isset($base_points[$activity_data['type']]) 
+            ? $base_points[$activity_data['type']] 
+            : 0;
+    }
+
+    /**
+     * Calculate streak bonus multiplier
+     */
+    private function calculate_streak_bonus($member_id) {
+        $streak = $this->get_current_streak($member_id);
+        
+        switch (true) {
+            case $streak >= 90:
+                return 2.0; // 200% bonus
+            case $streak >= 30:
+                return 1.0; // 100% bonus
+            case $streak >= 7:
+                return 0.5; // 50% bonus
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * Get member's current streak
+     */
+    public function get_current_streak($member_id) {
+        $cached_streak = $this->core->get_cache('member_streak_' . $member_id);
+        if ($cached_streak !== false) {
+            return (int)$cached_streak;
+        }
+
+        global $wpdb;
+        
+        // Get current streak using recursive CTE
+        $streak = $wpdb->get_var($wpdb->prepare(
+            "WITH RECURSIVE dates AS (
+                SELECT MAX(DATE(timestamp)) as date
+                FROM {$wpdb->prefix}mkwa_activities
+                WHERE member_id = %d
+                UNION ALL
+                SELECT DATE_SUB(date, INTERVAL 1 DAY)
+                FROM dates
+                WHERE EXISTS (
+                    SELECT 1 
+                    FROM {$wpdb->prefix}mkwa_activities
+                    WHERE member_id = %d
+                    AND DATE(timestamp) = DATE_SUB(date, INTERVAL 1 DAY)
+                )
+                AND date > DATE_SUB(CURRENT_DATE, INTERVAL 90 DAY)
+            )
+            SELECT COUNT(*) FROM dates",
+            $member_id,
+            $member_id
+        ));
+
+        $this->core->set_cache('member_streak_' . $member_id, $streak, $this->cache_duration);
+        
+        return (int)$streak;
+    }
+
+    /**
+     * Check and process level ups
+     */
+    private function check_level_up($member_id) {
+        global $wpdb;
+        
+        $member_data = $wpdb->get_row($wpdb->prepare(
+            "SELECT total_points, current_level 
+            FROM {$wpdb->prefix}mkwa_members 
+            WHERE member_id = %d",
+            $member_id
+        ));
+
+        if (!$member_data) return;
+
+        $new_level = $this->calculate_level($member_data->total_points);
+        
+        if ($new_level > $member_data->current_level) {
+            $wpdb->update(
+                $wpdb->prefix . 'mkwa_members',
+                array('current_level' => $new_level),
+                array('member_id' => $member_id),
+                array('%d'),
+                array('%d')
+            );
+
+            do_action('mkwa_level_up', $member_id, $new_level);
+        }
+    }
+
+    /**
+     * Calculate level based on total points
+     */
+    private function calculate_level($points) {
+        return floor(sqrt($points/100)) + 1;
+    }
+
+    /**
+     * Handle level up event
+     */
+    public function handle_level_up($member_id, $new_level) {
+        // Award level-specific badges if any
+        do_action('mkwa_check_badges', $member_id, 'level_up', array('level' => $new_level));
+        
+        // Send notification
+        $user_id = $this->get_user_id($member_id);
+        if ($user_id) {
+            $this->send_level_up_notification($user_id, $new_level);
+        }
+    }
+
+    /**
+     * Get user ID for member
+     */
+    private function get_user_id($member_id) {
+        global $wpdb;
+        return $wpdb->get_var($wpdb->prepare(
+            "SELECT user_id FROM {$wpdb->prefix}mkwa_members WHERE member_id = %d",
+            $member_id
+        ));
+    }
+
+    /**
+     * Send level up notification
+     */
+    private function send_level_up_notification($user_id, $new_level) {
+        $user = get_user_by('id', $user_id);
+        if (!$user) return;
+
+        $subject = sprintf('Congratulations! You\'ve reached Level %d', $new_level);
+        $message = sprintf(
+            'Hey %s,
+
+Congratulations! You\'ve reached Level %d in your fitness journey.
+
+Keep up the great work!
+
+Best regards,
+Mkwa Fitness Team',
+            $user->display_name,
+            $new_level
+        );
+
+        wp_mail($user->user_email, $subject, $message);
+    }
+
+    /**
+     * Daily streak check
+     */
+    public function check_streaks() {
+        global $wpdb;
+        
+        $members = $wpdb->get_results(
+            "SELECT DISTINCT m.member_id
+            FROM {$wpdb->prefix}mkwa_members m
+            JOIN {$wpdb->prefix}mkwa_activities a 
+                ON m.member_id = a.member_id
+            WHERE DATE(a.timestamp) >= DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY)"
+        );
+
+        foreach ($members as $member) {
+            $streak = $this->get_current_streak($member->member_id);
+            
+            // Clear cache
+            $this->core->set_cache('member_streak_' . $member->member_id, null);
+            
+            // Check for streak milestones
+            if (in_array($streak, [7, 30, 90])) {
+                do_action('mkwa_streak_milestone', $member->member_id, $streak);
+            }
+        }
+    }
+}

@@ -1,0 +1,114 @@
+/* Theme Variables - Save as mkwa-theme.css */
+:root {
+    --mkwa-primary: #2C5530;      /* Deep forest green - represents growth */
+    --mkwa-secondary: #8B4513;    /* Saddle brown - represents wood/earth */
+    --mkwa-accent: #1B3F8B;       /* Deep water blue - represents water/wisdom */
+    --mkwa-earth: #D2691E;        /* Earth orange - represents community/gathering */
+    --mkwa-light: #F5F5DC;        /* Natural beige - represents birch bark */
+    --mkwa-dark: #2F4F4F;         /* Dark slate - represents stone */
+    --mkwa-success: #567D46;      /* Forest success - softer green */
+    --mkwa-error: #8B4513;        /* Earth red - warmer take on traditional red */
+    --mkwa-shadow: rgba(0,0,0,0.15);
+}
+
+/* Theme Overrides */
+.mkwa-dashboard-header {
+    background: var(--mkwa-light);
+    border-bottom: 3px solid var(--mkwa-secondary);
+}
+
+.mkwa-level {
+    background: var(--mkwa-primary);
+    color: var(--mkwa-light);
+}
+
+.mkwa-dashboard-section {
+    border-top: 4px solid var(--mkwa-primary);
+    background: white;
+}
+
+.mkwa-dashboard-section h3 {
+    color: var(--mkwa-primary);
+    border-bottom: 2px solid var(--mkwa-secondary);
+}
+
+.mkwa-stat-block {
+    background: var(--mkwa-light);
+    border: 1px solid var(--mkwa-secondary);
+}
+
+.mkwa-progress-fill {
+    background: linear-gradient(to right, var(--mkwa-primary), var(--mkwa-secondary));
+}
+
+.mkwa-activity-points {
+    color: var(--mkwa-success);
+}
+
+.mkwa-badge-item {
+    background: var(--mkwa-light);
+    border: 1px solid var(--mkwa-secondary);
+}
+
+.mkwa-filter-btn {
+    background-color: var(--mkwa-light);
+    border: 2px solid var(--mkwa-secondary);
+    color: var(--mkwa-dark);
+}
+
+.mkwa-filter-btn.active {
+    background-color: var(--mkwa-primary);
+    border-color: var(--mkwa-primary);
+    color: var(--mkwa-light);
+}
+
+.mkwa-class-card {
+    background: white;
+    border-top: 4px solid var(--mkwa-primary);
+}
+
+.mkwa-class-card.registered {
+    border: 2px solid var(--mkwa-success);
+    background: linear-gradient(to bottom right, white, rgba(86, 125, 70, 0.1));
+}
+
+.mkwa-btn-register {
+    background-color: var(--mkwa-primary);
+    color: var(--mkwa-light);
+}
+
+.mkwa-btn-register:hover {
+    background-color: var(--mkwa-secondary);
+}
+
+.mkwa-btn-cancel {
+    background-color: var(--mkwa-error);
+    color: var(--mkwa-light);
+}
+
+.mkwa-notification-success {
+    background-color: var(--mkwa-success);
+}
+
+.mkwa-notification-error {
+    background-color: var(--mkwa-error);
+}
+
+/* Add biophilic design elements */
+.mkwa-dashboard-section,
+.mkwa-class-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.mkwa-dashboard-section::before,
+.mkwa-class-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, var(--mkwa-primary), var(--mkwa-secondary));
+    opacity: 0.7;
+}
